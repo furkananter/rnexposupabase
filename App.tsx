@@ -1,20 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-url-polyfill/auto';
+import { useState, useEffect } from 'react';
+import { supabase } from './app/lib/initSupabase';
+import { Session } from '@supabase/supabase-js';
+import { NavigationContainer } from '@react-navigation/native';
+import AuthStack from './app/navigation/AuthStack';
+import { AppContext } from './app/context/AppContext';
+import MainStack from './app/navigation/MainStack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 export default function App() {
+  const queryClient = new QueryClient();
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+  }, []);
+
+  const Auth = () => (session && session.user ? <MainStack /> : <AuthStack />);
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider value={{ session, loading }}>
+        <NavigationContainer>
+          <SafeAreaProvider style={{ flex: 1 }}>
+            <Auth />
+          </SafeAreaProvider>
+        </NavigationContainer>
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

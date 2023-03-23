@@ -15,13 +15,21 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Uygulama, fotoğraf seçmenize izin vermek için fotoğraf kitaplığınıza erişiyor."
+      },
+      "bundleIdentifier": "com.rnexposupabase"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#ffffff",
+        "permissions": [
+          "android.permission.READ_EXTERNAL_STORAGE"
+        ]
+      },
+      "package": "com.rnexposupabase"
     },
     "web": {
       "favicon": "./assets/favicon.png"
